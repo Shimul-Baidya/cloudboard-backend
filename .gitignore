@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.pyc
+
+# Virtual Environment
+.venv/
+venv/
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.sqlite3
+
+# Pytest cache
+.pytest_cache/
+
+# Migrations (if alembic is used later, remove this)
+alembic/versions/__pycache__/
