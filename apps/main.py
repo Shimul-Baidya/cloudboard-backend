@@ -3,8 +3,18 @@ from apps.database import engine, Base
 from sqlalchemy import text
 from contextlib import asynccontextmanager
 from apps.models import user
+from sqlalchemy.orm import Session
 
 Base.metadata.create_all(engine)
+
+with Session(engine) as session:
+    spongebob = user.User(
+        email="spongebob@krustykrab.com",
+        hashed_password="spongebob",
+        role="user"
+    )
+    session.add(spongebob)
+    session.commit()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
