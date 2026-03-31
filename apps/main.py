@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from apps.database import engine, Base
+from apps.database import SessionLocal, engine, Base
 from sqlalchemy import text
 from contextlib import asynccontextmanager
 from apps.models import user
@@ -7,14 +7,15 @@ from sqlalchemy.orm import Session
 
 Base.metadata.create_all(engine)
 
-with Session(engine) as session:
-    spongebob = user.User(
-        email="spongebob@krustykrab.com",
-        hashed_password="spongebob",
-        role="user"
-    )
-    session.add(spongebob)
-    session.commit()
+# TODO: I need to reflect on what I have accomplished so far to internalize the knowledge
+# with Session(engine) as session:
+#     spongebob = user.User(
+#         email="spongebob@krustykrab.com",
+#         hashed_password="spongebob",
+#         role="user"
+#     )
+#     session.add(spongebob)
+#     session.commit()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,6 +32,16 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
 
 
 @app.get("/health")
