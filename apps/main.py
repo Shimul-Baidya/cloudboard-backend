@@ -7,6 +7,7 @@ from apps.schemas import user as user_schema
 from sqlalchemy.orm import Session
 
 
+# Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
 
 # TODO: I need to reflect on what I have accomplished so far to internalize the knowledge
