@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String
+from sqlalchemy import String, DateTime, func
 from apps.database import Base
 
 class User(Base):
@@ -9,7 +9,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(320), unique=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(50))
-    # created_at: Mapped[DateTime] = mapped_column(server_default=func.now())
+    # created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, email={self.email!r}, role={self.role!r})"

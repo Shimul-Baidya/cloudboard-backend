@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 class CreateUser(BaseModel):
     email: str
-    password: str
+    hashed_password: str
     role: str = "user"
 
 class UserResponse(BaseModel):
