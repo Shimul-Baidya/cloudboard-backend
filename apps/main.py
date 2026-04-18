@@ -60,7 +60,7 @@ def create_user(user: user_schema.CreateUser, db: Session = Depends(get_db)):
 
 @app.get("/users/{user_id}", response_model=user_schema.UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(user_model.User).filter(user_id==user_model.User.id).first()
+    user = db.query(user_model.User).filter(user_model.User.id==user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
