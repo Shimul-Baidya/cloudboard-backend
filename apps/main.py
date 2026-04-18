@@ -1,14 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException
-from apps.database import SessionLocal, engine, Base
+from apps.database import engine, get_db
 from sqlalchemy import text
 from contextlib import asynccontextmanager
 from apps.models import user as user_model
 from apps.schemas import user as user_schema
 from sqlalchemy.orm import Session
 
-
-# Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
 
 # TODO: I need to reflect on what I have accomplished so far to internalize the knowledge
 # with Session(engine) as session:
@@ -36,13 +33,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @app.post("/users", response_model=user_schema.UserResponse)
 def create_user(user: user_schema.CreateUser, db: Session = Depends(get_db)):
