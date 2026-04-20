@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from apps.models import user as user_model
 from apps.schemas import user as user_schema
 from apps.database import get_db
+from apps.services.security import get_password_hash
 
 
 router = APIRouter()
@@ -12,8 +13,21 @@ def create_user(user: user_schema.CreateUser, db: Session = Depends(get_db)):
     if db.query(user_model.User).filter(user_model.User.email == user.email).first(): 
         raise HTTPException(status_code=409, detail="Email already exists!")
     
+    # get the hashed password
+    hashed_password = get_password_hash(user.password)
     # create a new user
-    new_user = user_model.User(**user.model_dump())
+    new_user = user_model.User(
+        email = user.email,
+        hashed_password = hashed_password,
+        role = user.role
+    )
+
+    # # Not tested
+    # # creating a user using model_dump()
+    # user_data = user.model_dump(exclude={"password"})
+    # user_data["hashed_password"] = get_password_hash(user.password)
+    # new_user = user_model.User(**user_data)
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
