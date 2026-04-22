@@ -5,8 +5,12 @@ from apps.database import get_db
 from sqlalchemy.orm import Session
 from apps.models import user as user_model
 from fastapi import HTTPException, status
-from apps.services.security import DUMMY_HASH, verify_password
-from fastapi.security import OAuth2PasswordBearer
+from apps.services.security import ALGORITHM, DUMMY_HASH, SECRET_KEY, verify_password
+from apps.schemas.token import TokenData
+from fastapi.security import OAuth2PasswordBearer, Depends
+from typing import Annotated
+import jwt
+from jwt.exceptions import InvalidTokenError
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -29,12 +33,26 @@ def authenticate_user(db: Session, email: str, password: str):
     return user
     
 
-    
+async def get_current_user(db: Session, token: Annotated[str, Depends(oauth2_scheme)]):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithm=ALGORITHM)
+        email = payload.get("sub")
+        if email is None:
+            raise credentials_exception()
+        token_data = TokenData(email=email)
+    except InvalidTokenError:
+        raise credentials_exception()
+    user = get_user(db, email=token_data.email)
+    if user in None:
+        raise credentials_exception()
+    return user
+
+
 
 
 # exceptions
 
-def get_user_exception():
+def credentials_exception():
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -43,9 +61,9 @@ def get_user_exception():
     return credentials_exception
 
 def token_exception():
-    token_exception_response = HTTPException(
+    token_exception = HTTPException(
         status_code=HTTP_401_UNAUTHORIZED,
         detail="Incorrect username or password",
         headers={"WWW-Authenticate": "Bearer"}
     )
-    return token_exception_response
+    return token_exception
