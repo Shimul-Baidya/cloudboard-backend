@@ -4,10 +4,10 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from apps.database import get_db
 from sqlalchemy.orm import Session
 from apps.models import user as user_model
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from apps.services.security import ALGORITHM, DUMMY_HASH, SECRET_KEY, verify_password
 from apps.schemas.token import TokenData
-from fastapi.security import OAuth2PasswordBearer, Depends
+from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 import jwt
 from jwt.exceptions import InvalidTokenError
