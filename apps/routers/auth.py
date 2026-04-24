@@ -14,12 +14,12 @@ router = APIRouter()
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session=Depends(get_db)
 ) -> Token:
-    user = authenticate_user(db, form_data.email, form_data.password)
+    user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise token_exception()
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, exprires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
     

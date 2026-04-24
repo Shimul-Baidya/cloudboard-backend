@@ -24,7 +24,7 @@ def get_user(db: Session, email: str):
 
 
 def authenticate_user(db: Session, email: str, password: str):
-    user = get_user(db, email)
+    user = get_user(db, email) # TODO: How does it work, I have to look this up
     if not user:
         verify_password(password, DUMMY_HASH)
         return false
