@@ -14,7 +14,8 @@ router = APIRouter()
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session=Depends(get_db)
 ) -> Token:
-    user = authenticate_user(db, form_data.username, form_data.password)
+    user = authenticate_user(db, form_data.username, form_data.password)    # OAuth2PasswordRequestForm has fixed attributes,
+                                                                            # that's why formdata.username even though email is used
     if not user:
         raise token_exception()
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

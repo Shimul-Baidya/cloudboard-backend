@@ -33,7 +33,7 @@ def authenticate_user(db: Session, email: str, password: str):
     return user
     
 
-async def get_current_user(db: Session, token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithm=ALGORITHM)
         email = payload.get("sub")
@@ -43,7 +43,7 @@ async def get_current_user(db: Session, token: Annotated[str, Depends(oauth2_sch
     except InvalidTokenError:
         raise credentials_exception()
     user = get_user(db, email=token_data.email)
-    if user in None:
+    if user is None:
         raise credentials_exception()
     return user
 
