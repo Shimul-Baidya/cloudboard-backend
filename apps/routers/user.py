@@ -1,9 +1,11 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from apps.models import user as user_model
 from apps.schemas import user as user_schema
 from apps.database import get_db
 from apps.services.security import get_password_hash
+from apps.services.auth import get_current_user
 
 
 router = APIRouter()
@@ -34,7 +36,12 @@ def create_user(user: user_schema.CreateUser, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.get("/users/{user_id}", response_model=user_schema.UserResponse)
+@router.get("/users/me", response_model=user_schema.UserResponse)
+async def read_user_me(current_user: Annotated[user_model.User, Depends(get_current_user)]):
+    return current_user
+
+
+@router.get("/users/id/{user_id}", response_model=user_schema.UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(user_model.User).filter(user_model.User.id==user_id).first()
     if not user:

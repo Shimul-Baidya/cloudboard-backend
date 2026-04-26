@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from apps.database import engine
 from sqlalchemy import text
 from contextlib import asynccontextmanager
-from apps.routers import others
-from apps.routers import user as user_router
+from apps.routers.others import router as others_router
+from apps.routers.user import router as user_router
+from apps.routers.auth import router as auth_router
 
 
 # TODO: I need to reflect on what I have accomplished so far to internalize the knowledge
@@ -32,6 +33,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(others.router)
-app.include_router(user_router.router)
+app.include_router(others_router)
+app.include_router(user_router)
+app.include_router(auth_router)
 
