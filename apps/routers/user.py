@@ -36,13 +36,14 @@ def create_user(user: user_schema.CreateUser, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.get("/users/{user_id}", response_model=user_schema.UserResponse)
+@router.get("/users/me", response_model=user_schema.UserResponse)
+async def read_user_me(current_user: Annotated[user_model.User, Depends(get_current_user)]):
+    return current_user
+
+
+@router.get("/users/id/{user_id}", response_model=user_schema.UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(user_model.User).filter(user_model.User.id==user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-
-@router.get("/users/me", response_model=user_schema.UserResponse)
-async def read_user_me(current_user: Annotated[user_model.User, Depends(get_current_user)]):
-    return current_user

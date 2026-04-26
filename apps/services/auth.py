@@ -1,5 +1,4 @@
 # authentication logic
-from sqlalchemy import false
 from starlette.status import HTTP_401_UNAUTHORIZED
 from apps.database import get_db
 from sqlalchemy.orm import Session
@@ -27,15 +26,15 @@ def authenticate_user(db: Session, email: str, password: str):
     user = get_user(db, email) # TODO: How does it work, I have to look this up
     if not user:
         verify_password(password, DUMMY_HASH)
-        return false
+        return False
     if not verify_password(password, user.hashed_password):
-        return false
+        return False
     return user
     
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithm=ALGORITHM)
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
         if email is None:
             raise credentials_exception()
