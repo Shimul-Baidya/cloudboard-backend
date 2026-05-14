@@ -4,12 +4,16 @@ from apps.database import get_db
 from sqlalchemy.orm import Session
 from apps.models import user as user_model
 from fastapi import HTTPException, status, Depends
-from apps.services.security import ALGORITHM, DUMMY_HASH, SECRET_KEY, verify_password
+from apps.services.security import ALGORITHM, DUMMY_HASH, verify_password
 from apps.schemas.token import TokenData
+from apps.config import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 import jwt
 from jwt.exceptions import InvalidTokenError
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -18,17 +22,20 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 def get_user(db: Session, email: str):
     user = db.query(user_model.User).filter(user_model.User.email == email).first()
     if not user:
+        logger.warning('Email not found in database')
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 
 def authenticate_user(db: Session, email: str, password: str):
-    user = get_user(db, email) # TODO: How does it work, I have to look this up
+    user = get_user(db, email)
     if not user:
         verify_password(password, DUMMY_HASH)
         return False
     if not verify_password(password, user.hashed_password):
+        logger.warning('Invalid login attempt (wrong password)')
         return False
+    logger.info('User Authenticated')
     return user
     
 
@@ -40,6 +47,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
             raise credentials_exception()
         token_data = TokenData(email=email)
     except InvalidTokenError:
+        logger.warning('Invalid credentials used for token') # working of this log isn't tested
         raise credentials_exception()
     user = get_user(db, email=token_data.email)
     if user is None:

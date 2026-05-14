@@ -3,10 +3,14 @@ from typing import Annotated
 from fastapi import Depends, APIRouter
 from apps.schemas.token import Token
 from apps.services.auth import authenticate_user, token_exception
-from apps.services.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
+from apps.services.security import create_access_token
+from apps.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
 from sqlalchemy.orm import Session
 from apps.database import get_db
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -14,6 +18,7 @@ router = APIRouter()
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session=Depends(get_db)
 ) -> Token:
+    logger.info('POST request to /token')
     user = authenticate_user(db, form_data.username, form_data.password)    # OAuth2PasswordRequestForm has fixed attributes,
                                                                             # that's why formdata.username even though email is used
     if not user:

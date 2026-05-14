@@ -5,6 +5,10 @@ from contextlib import asynccontextmanager
 from apps.routers.others import router as others_router
 from apps.routers.user import router as user_router
 from apps.routers.auth import router as auth_router
+from apps import config
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # TODO: I need to reflect on what I have accomplished so far to internalize the knowledge
@@ -23,10 +27,10 @@ async def lifespan(app: FastAPI):
     try:
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
-        print("Database connection successful")
+        logger.info('Database connection successful')
     except Exception as e:
-        print("Database connection failed")
-        print(e)
+        logger.error("Database connection failed")
+        logger.exception(e)
 
     yield  
 
