@@ -5,14 +5,13 @@ from pwdlib import PasswordHash
 import jwt
 import os
 import logging
+from apps.config import SECRET_KEY
 
 logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 password_hash = PasswordHash.recommended()
 

@@ -4,8 +4,9 @@ from apps.database import get_db
 from sqlalchemy.orm import Session
 from apps.models import user as user_model
 from fastapi import HTTPException, status, Depends
-from apps.services.security import ALGORITHM, DUMMY_HASH, SECRET_KEY, verify_password
+from apps.services.security import ALGORITHM, DUMMY_HASH, verify_password
 from apps.schemas.token import TokenData
+from apps.config import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 import jwt
@@ -46,7 +47,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
             raise credentials_exception()
         token_data = TokenData(email=email)
     except InvalidTokenError:
-        logger.warning('Invalid credentials used for token')
+        logger.warning('Invalid credentials used for token') # working of this log isn't tested
         raise credentials_exception()
     user = get_user(db, email=token_data.email)
     if user is None:

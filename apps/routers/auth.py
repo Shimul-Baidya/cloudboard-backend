@@ -3,7 +3,8 @@ from typing import Annotated
 from fastapi import Depends, APIRouter
 from apps.schemas.token import Token
 from apps.services.auth import authenticate_user, token_exception
-from apps.services.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
+from apps.services.security import create_access_token
+from apps.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
 from sqlalchemy.orm import Session
 from apps.database import get_db
