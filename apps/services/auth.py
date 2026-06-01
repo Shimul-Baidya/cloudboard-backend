@@ -1,5 +1,5 @@
 # authentication logic
-from starlette.status import HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from apps.database import get_db
 from sqlalchemy.orm import Session
 from apps.models import user as user_model
@@ -8,7 +8,7 @@ from apps.services.security import ALGORITHM, DUMMY_HASH, verify_password
 from apps.schemas.token import TokenData
 from apps.config import SECRET_KEY
 from fastapi.security import OAuth2PasswordBearer
-from typing import Annotated
+from typing import Annotated, List
 import jwt
 from jwt.exceptions import InvalidTokenError
 import logging
@@ -54,7 +54,17 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         raise credentials_exception()
     return user
 
+def require_roles(allowed_roles: List[str]):
 
+    def checker(current_user: user_model.User = Depends(get_current_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=HTTP_403_FORBIDDEN,
+                detail="You are not authorized to perform this operation"
+            )
+        return current_user
+
+    return checker
 
 
 # exceptions

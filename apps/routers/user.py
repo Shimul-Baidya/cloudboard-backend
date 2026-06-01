@@ -5,14 +5,14 @@ from apps.models import user as user_model
 from apps.schemas import user as user_schema
 from apps.database import get_db
 from apps.services.security import get_password_hash
-from apps.services.auth import get_current_user
+from apps.services.auth import get_current_user, require_roles
 import logging
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/users", response_model=user_schema.UserResponse)
+@router.post("/user/register", response_model=user_schema.UserResponse)
 def create_user(user: user_schema.CreateUser, db: Session = Depends(get_db)):
     logger.info('POST request to /users')
     if db.query(user_model.User).filter(user_model.User.email == user.email).first():
@@ -48,7 +48,10 @@ async def read_user_me(current_user: Annotated[user_model.User, Depends(get_curr
 
 
 @router.get("/users/id/{user_id}", response_model=user_schema.UserResponse)
-def get_user(user_id: int, db: Session = Depends(get_db)):
+def get_user_by_id(
+    user_id: int, db: Session = Depends(get_db), 
+    current_user: user_model.User = Depends(require_roles(["admin"]))
+    ):
     logger.info(f'GET request to /users/id/{user_id}')
     user = db.query(user_model.User).filter(user_model.User.id==user_id).first()
     if not user:
