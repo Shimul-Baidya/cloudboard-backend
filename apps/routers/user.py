@@ -1,6 +1,7 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND
 from apps.models import user as user_model
 from apps.schemas import user as user_schema
 from apps.database import get_db
@@ -57,3 +58,18 @@ def get_user_by_id(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@router.delete("/delete_user/{user_id}")
+def delete_user_by_id(
+    user_id: int, db: Session = Depends(get_db),
+    current_user: user_model.User = Depends(require_roles(["admin"]))
+    ):
+    logger.info(f'DELETE request to /delete_user/{user_id}')
+    user = db.query(user_model.User).filter(user_model.User.id==user_id).first()
+    if not user:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="User not found")
+    db.delete(user)
+    db.commit()
+    logger.info(f'User deleted: user id {user_id}')
+    return Response(status_code=HTTP_204_NO_CONTENT)
