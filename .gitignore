@@ -31,5 +31,6 @@ Thumbs.db
 # Pytest cache
 .pytest_cache/
 
-# Migrations (if alembic is used later, remove this)
-alembic/versions/__pycache__/
+# Alembic cache
+migrations/__pycache__/
+migrations/versions/__pycache__/
