@@ -73,3 +73,6 @@ def delete_user_by_id(
     db.commit()
     logger.info(f'User deleted: user id {user_id}')
     return Response(status_code=HTTP_204_NO_CONTENT)
+
+
+# update user route needed
